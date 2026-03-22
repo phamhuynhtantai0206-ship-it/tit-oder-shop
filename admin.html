@@ -1,4 +1,4 @@
-<!-- ========================= admin.html ========================= -->
+<!-- ========================= admin.html (UPLOAD ẢNH TỪ MÁY) ========================= -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -9,6 +9,7 @@
 body{font-family:Arial;padding:10px}
 input,textarea{width:100%;margin:5px 0;padding:8px}
 button{padding:8px}
+img{width:100px;margin-top:10px}
 </style>
 </head>
 <body>
@@ -21,13 +22,18 @@ button{padding:8px}
 <h3>Thêm sản phẩm</h3>
 <input id="name" placeholder="Tên">
 <input id="price" placeholder="Giá">
-<input id="img" placeholder="Link ảnh">
+
+<!-- chọn ảnh từ máy -->
+<input type="file" id="file">
+<img id="preview">
+
 <textarea id="desc" placeholder="Mô tả"></textarea>
 <button onclick="addProduct()">Thêm</button>
 </div>
 
 <script>
 let products = JSON.parse(localStorage.getItem('products'))||[];
+let imageData = '';
 
 function save(){localStorage.setItem('products',JSON.stringify(products))}
 
@@ -37,9 +43,19 @@ admin.style.display='block';
 }
 }
 
+// đọc ảnh từ máy
+file.onchange = function(){
+let reader = new FileReader();
+reader.onload = function(e){
+imageData = e.target.result;
+preview.src = imageData;
+}
+reader.readAsDataURL(this.files[0]);
+}
+
 function addProduct(){
-products.push({name:name.value,price:price.value||450,img:img.value,desc:desc.value});
-save();alert('Đã thêm');
+products.push({name:name.value,price:price.value||450,img:imageData,desc:desc.value});
+save();alert('Đã thêm sản phẩm');
 }
 </script>
 
