@@ -1,62 +1,93 @@
-<!-- ========================= admin.html (UPLOAD ẢNH TỪ MÁY) ========================= -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin</title>
 <style>
 body{font-family:Arial;padding:10px}
-input,textarea{width:100%;margin:5px 0;padding:8px}
-button{padding:8px}
-img{width:100px;margin-top:10px}
+input{margin:5px;padding:5px}
+button{margin:5px}
+.item{border:1px solid #ccc;padding:5px;margin:5px}
 </style>
 </head>
 <body>
-<h2>Admin</h2>
-<input id="user" placeholder="user">
-<input id="pass" type="password" placeholder="pass">
-<button onclick="login()">Login</button>
 
-<div id="admin" style="display:none">
-<h3>Thêm sản phẩm</h3>
-<input id="name" placeholder="Tên">
-<input id="price" placeholder="Giá">
+<h2>Admin - tit.oder</h2>
 
-<!-- chọn ảnh từ máy -->
-<input type="file" id="file">
-<img id="preview">
+<input id="name" placeholder="Tên sản phẩm"><br>
+<input id="price" placeholder="Giá"><br>
+<input type="file" id="file"><br>
 
-<textarea id="desc" placeholder="Mô tả"></textarea>
 <button onclick="addProduct()">Thêm</button>
-</div>
 
-<script>
-let products = JSON.parse(localStorage.getItem('products'))||[];
-let imageData = '';
+<h3>Danh sách sản phẩm</h3>
+<div id="list"></div>
 
-function save(){localStorage.setItem('products',JSON.stringify(products))}
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-function login(){
-if(user.value==='admin' && pass.value==='123'){
-admin.style.display='block';
-}
-}
+const firebaseConfig = {
+  apiKey: "AIzaSy...",
+  authDomain: "tit-oder-shop.firebaseapp.com",
+  projectId: "tit-oder-shop"
+};
 
-// đọc ảnh từ máy
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let imgData="";
+
+// đọc ảnh
 file.onchange = function(){
-let reader = new FileReader();
-reader.onload = function(e){
-imageData = e.target.result;
-preview.src = imageData;
-}
-reader.readAsDataURL(this.files[0]);
+  let reader = new FileReader();
+  reader.onload = e => imgData = e.target.result;
+  reader.readAsDataURL(this.files[0]);
 }
 
-function addProduct(){
-products.push({name:name.value,price:price.value||450,img:imageData,desc:desc.value});
-save();alert('Đã thêm sản phẩm');
+// thêm sản phẩm
+window.addProduct = async ()=>{
+  if(!name.value || !price.value || !imgData){
+    alert("Nhập đầy đủ thông tin!");
+    return;
+  }
+
+  await addDoc(collection(db,"products"),{
+    name: name.value,
+    price: price.value,
+    img: imgData
+  });
+
+  alert("Đã thêm!");
+  load();
 }
+
+// load + hiển thị
+async function load(){
+  let snap = await getDocs(collection(db,"products"));
+  let html="";
+
+  snap.forEach(d=>{
+    let p = d.data();
+    html+=`
+    <div class="item">
+      <img src="${p.img}" width="80"><br>
+      ${p.name} - ${p.price}k
+      <br>
+      <button onclick="del('${d.id}')">Xóa</button>
+    </div>`;
+  });
+
+  list.innerHTML = html;
+}
+
+// xóa sản phẩm
+window.del = async (id)=>{
+  await deleteDoc(doc(db,"products",id));
+  load();
+}
+
+load();
 </script>
 
 </body>
