@@ -1,42 +1,95 @@
-<!-- ========================= index.html (SHOP) ========================= -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>tit.oder Shop</title>
+<title>tit.oder</title>
+
 <style>
-body{margin:0;font-family:Arial;background:#f5f5f5}
-header{background:white;padding:10px;display:flex;justify-content:space-between;border-bottom:1px solid #ddd}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;padding:10px}
-.product{background:white;border-radius:8px;overflow:hidden}
-.product img{width:100%;height:180px;object-fit:cover}
-.price{color:red;font-weight:bold}
+body{font-family:Arial;background:#f5f5f5}
+h2{text-align:center}
+.grid{display:flex;flex-wrap:wrap;justify-content:center}
+.product{width:45%;margin:8px;background:#fff;padding:5px;border-radius:8px}
+img{width:100%;border-radius:6px}
+button{margin-top:5px;background:red;color:white;border:none;padding:5px;border-radius:5px}
+.login{position:fixed;top:10px;right:10px}
 </style>
+
 </head>
 <body>
-<header>
-<b>tit.oder</b>
-<a href="admin.html">Admin</a>
-</header>
-<div class="grid" id="products"></div>
 
-<script>
-let products = JSON.parse(localStorage.getItem('products'))||[];
+<h2>🛍️ tit.oder</h2>
 
-function render(){
-let html='';
-products.forEach(p=>{
-html+=`<div class='product'>
-<img src='${p.img}'>
-<p>${p.name}</p>
-<p class='price'>${p.price}k</p>
-</div>`;
-});
-document.getElementById('products').innerHTML=html;
+<div class="login">
+<button onclick="login()">🔐 Admin Login</button>
+</div>
+
+<div id="products" class="grid"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBRh8vou4l2QkII2yjaUSSkvEAKDR_M8-k",
+  authDomain: "tit-oder-shop.firebaseapp.com",
+  projectId: "tit-oder-shop"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let isAdmin = false;
+
+// 👉 EMAIL ADMIN (bạn sửa thành email của bạn)
+const ADMIN_EMAIL = "youremail@gmail.com";
+
+// LOGIN
+window.login = ()=>{
+  const provider = new GoogleAuthProvider();
+  signInWithPopup(auth, provider);
 }
 
-render();
+// CHECK LOGIN
+onAuthStateChanged(auth, user=>{
+  if(user && user.email === ADMIN_EMAIL){
+    isAdmin = true;
+  } else {
+    isAdmin = false;
+  }
+  load();
+});
+
+// LOAD SẢN PHẨM
+async function load(){
+  let snap = await getDocs(collection(db,"products"));
+  let html="";
+
+  snap.forEach(d=>{
+    let p=d.data();
+
+    html+=`
+    <div class="product">
+      <img src="${p.img}">
+      <p>${p.name || "Chưa có tên"}</p>
+      <p>${p.price || "0"}k</p>
+
+      ${isAdmin ? `<button onclick="del('${d.id}')">❌ Xóa</button>` : ``}
+    </div>`;
+  });
+
+  products.innerHTML=html;
+}
+
+// XÓA
+window.del = async (id)=>{
+  if(confirm("Xóa sản phẩm này?")){
+    await deleteDoc(doc(db,"products",id));
+    load();
+  }
+}
 </script>
+
 </body>
 </html>
