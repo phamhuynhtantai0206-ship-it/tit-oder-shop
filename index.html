@@ -1,4 +1,4 @@
-<!-- ========================= index.html (SHOP GIỐNG SHOPEE) ========================= -->
+<!-- ========================= index.html (SHOP) ========================= -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -7,83 +7,36 @@
 <title>tit.oder Shop</title>
 <style>
 body{margin:0;font-family:Arial;background:#f5f5f5}
-header{background:white;padding:10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ddd}
-.logo{font-weight:bold;font-size:20px}
+header{background:white;padding:10px;display:flex;justify-content:space-between;border-bottom:1px solid #ddd}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;padding:10px}
-.product{background:white;border-radius:8px;overflow:hidden;cursor:pointer;transition:.2s}
-.product:hover{transform:translateY(-3px);box-shadow:0 2px 10px rgba(0,0,0,0.1)}
+.product{background:white;border-radius:8px;overflow:hidden}
 .product img{width:100%;height:180px;object-fit:cover}
-.name{font-size:14px;padding:5px}
-.price{color:red;font-weight:bold;padding:0 5px 5px}
-
-/* popup */
-#popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:none;justify-content:center;align-items:center}
-.box{background:white;width:90%;max-width:400px;border-radius:10px;padding:15px}
-button{padding:8px 10px;margin-top:5px;width:100%}
-
-/* cart */
-#cartBox{position:fixed;right:0;top:0;width:300px;height:100%;background:white;display:none;padding:10px;border-left:1px solid #ddd;overflow:auto}
+.price{color:red;font-weight:bold}
 </style>
 </head>
 <body>
-
 <header>
-<div class="logo">tit.oder</div>
-<button onclick="openCart()">🛒</button>
+<b>tit.oder</b>
+<a href="admin.html">Admin</a>
 </header>
-
 <div class="grid" id="products"></div>
-
-<!-- popup -->
-<div id="popup">
-<div class="box">
-<h3 id="pname"></h3>
-<img id="pimg" style="width:100%">
-<p id="pprice"></p>
-<select id="size"><option>M</option><option>L</option><option>XL</option></select>
-<button onclick="addToCart()">Thêm vào giỏ</button>
-<button onclick="closePopup()">Đóng</button>
-</div>
-</div>
-
-<!-- cart -->
-<div id="cartBox"></div>
 
 <script>
 let products = JSON.parse(localStorage.getItem('products'))||[];
-let cart = JSON.parse(localStorage.getItem('cart'))||[];
-let current=null;
-
-function save(){
-localStorage.setItem('products',JSON.stringify(products));
-localStorage.setItem('cart',JSON.stringify(cart));
-}
 
 function render(){
 let html='';
-products.forEach((p,i)=>{
-html+=`<div class='product' onclick='show(${i})'>
+products.forEach(p=>{
+html+=`<div class='product'>
 <img src='${p.img}'>
-<div class='name'>${p.name}</div>
-<div class='price'>${p.price}k</div>
+<p>${p.name}</p>
+<p class='price'>${p.price}k</p>
 </div>`;
 });
 document.getElementById('products').innerHTML=html;
 }
 
-function show(i){
-current=i;
-let p=products[i];
-pname.innerText=p.name;
-pimg.src=p.img;
-pprice.innerText=p.price+'k';
-popup.style.display='flex';
-}
-
-function closePopup(){popup.style.display='none'}
-
 render();
 </script>
-
 </body>
 </html>
