@@ -1,3 +1,4 @@
+<!-- ========================= index.html (SHOP GIỐNG SHOPEE) ========================= -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -5,86 +6,67 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>tit.oder Shop</title>
 <style>
-body{font-family:Arial;margin:0;background:#f5f5f5}
-header{background:#ff5722;color:#fff;padding:10px;display:flex;justify-content:space-between;align-items:center}
-header img{height:40px}
-.container{padding:10px}
-.grid{display:flex;flex-wrap:wrap;gap:10px}
-.product{width:48%;background:#fff;border-radius:10px;overflow:hidden}
+body{margin:0;font-family:Arial;background:#f5f5f5}
+header{background:white;padding:10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ddd}
+.logo{font-weight:bold;font-size:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;padding:10px}
+.product{background:white;border-radius:8px;overflow:hidden;cursor:pointer;transition:.2s}
+.product:hover{transform:translateY(-3px);box-shadow:0 2px 10px rgba(0,0,0,0.1)}
 .product img{width:100%;height:180px;object-fit:cover}
-.price{color:red;font-weight:bold}
-button{padding:6px 10px;margin:5px}
-#popup,#loginBox{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);display:none;justify-content:center;align-items:center}
-.box{background:#fff;padding:15px;border-radius:10px;width:300px}
+.name{font-size:14px;padding:5px}
+.price{color:red;font-weight:bold;padding:0 5px 5px}
+
+/* popup */
+#popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:none;justify-content:center;align-items:center}
+.box{background:white;width:90%;max-width:400px;border-radius:10px;padding:15px}
+button{padding:8px 10px;margin-top:5px;width:100%}
+
+/* cart */
+#cartBox{position:fixed;right:0;top:0;width:300px;height:100%;background:white;display:none;padding:10px;border-left:1px solid #ddd;overflow:auto}
 </style>
 </head>
 <body>
 
 <header>
-<img src="logo.png">
-<b>tit.oder</b>
+<div class="logo">tit.oder</div>
 <button onclick="openCart()">🛒</button>
 </header>
 
-<div class="container">
-<button onclick="showLogin()">Admin</button>
-<div id="admin" style="display:none">
-<input id="name" placeholder="Tên">
-<input id="price" placeholder="Giá">
-<input id="img" placeholder="Ảnh">
-<textarea id="desc" placeholder="Mô tả"></textarea>
-<button onclick="addProduct()">Thêm</button>
-</div>
-
 <div class="grid" id="products"></div>
-</div>
 
-<!-- popup chi tiết -->
+<!-- popup -->
 <div id="popup">
 <div class="box">
 <h3 id="pname"></h3>
 <img id="pimg" style="width:100%">
 <p id="pprice"></p>
-<p id="pdesc"></p>
 <select id="size"><option>M</option><option>L</option><option>XL</option></select>
 <button onclick="addToCart()">Thêm vào giỏ</button>
 <button onclick="closePopup()">Đóng</button>
 </div>
 </div>
 
-<!-- giỏ hàng -->
-<div id="cartBox">
-</div>
-
-<!-- login -->
-<div id="loginBox">
-<div class="box">
-<input id="user" placeholder="user">
-<input id="pass" placeholder="pass" type="password">
-<button onclick="login()">Đăng nhập</button>
-</div>
-</div>
+<!-- cart -->
+<div id="cartBox"></div>
 
 <script>
 let products = JSON.parse(localStorage.getItem('products'))||[];
 let cart = JSON.parse(localStorage.getItem('cart'))||[];
-let current = null;
+let current=null;
 
 function save(){
 localStorage.setItem('products',JSON.stringify(products));
 localStorage.setItem('cart',JSON.stringify(cart));
 }
 
-function addProduct(){
-products.push({name:name.value,price:price.value||450,img:img.value,desc:desc.value});
-save();render();
-}
-
 function render(){
 let html='';
 products.forEach((p,i)=>{
 html+=`<div class='product' onclick='show(${i})'>
-<img src='${p.img}'><p>${p.name}</p><p class='price'>${p.price}k</p></div>`;
+<img src='${p.img}'>
+<div class='name'>${p.name}</div>
+<div class='price'>${p.price}k</div>
+</div>`;
 });
 document.getElementById('products').innerHTML=html;
 }
@@ -95,35 +77,10 @@ let p=products[i];
 pname.innerText=p.name;
 pimg.src=p.img;
 pprice.innerText=p.price+'k';
-pdesc.innerText=p.desc;
 popup.style.display='flex';
 }
 
 function closePopup(){popup.style.display='none'}
-
-function addToCart(){
-cart.push(products[current]);
-save();alert('Đã thêm');
-}
-
-function openCart(){
-let total=0,html='<div class=box>';
-cart.forEach(p=>{total+=Number(p.price);html+=`<p>${p.name}-${p.price}k</p>`});
-html+=`<b>Tổng:${total}k</b><br>`;
-html+=`<img src='https://img.vietqr.io/image/TPB-00000463122-compact.png?amount=${total/2}&addInfo=Thanh toan tit.oder'>`;
-html+=`<br><button onclick='closeCart()'>Đóng</button></div>`;
-cartBox.innerHTML=html;cartBox.style.display='flex';
-}
-
-function closeCart(){cartBox.style.display='none'}
-
-function showLogin(){loginBox.style.display='flex'}
-
-function login(){
-if(user.value==='admin' && pass.value==='123'){
-admin.style.display='block';loginBox.style.display='none';
-}else alert('Sai');
-}
 
 render();
 </script>
